@@ -53,6 +53,8 @@
 	<string>We need access to your camera for scanning QR codes.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is needed for attendance purposes</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is needed for attendance purposes</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Your location is needed for attendance purposes</string>
 	<key>io.flutter.embedded_views_preview</key>
