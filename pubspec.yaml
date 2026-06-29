@@ -119,7 +119,6 @@ flutter:
    - assest/images/r2.png
    - assest/images/r7.png
    - assest/images/r10.png
-   - assest/firebase/towerapp-fec08-firebase-adminsdk-4v2d5-a7d4309c1d.json
 
 flutter_launcher_icons:
   ios: true
