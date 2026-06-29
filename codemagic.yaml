@@ -10,6 +10,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.FaisalZahrani.ABTFApp
       vars:
+        BUNDLE_ID: "com.FaisalZahrani.ABTFApp"
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
     scripts:
@@ -18,7 +19,7 @@ workflows:
       - name: Configure code signing (App Store Connect)
         script: |
           keychain initialize
-          app-store-connect fetch-signing-files "${CM_BUNDLE_IDENTIFIER}" --type IOS_APP_STORE --create
+          app-store-connect fetch-signing-files "${BUNDLE_ID}" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
       - name: Install CocoaPods
@@ -39,5 +40,5 @@ workflows:
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         # In Codemagic UI, set APP_STORE_CONNECT_API_KEY as the contents of the .p8 file.
         submit_to_testflight: true
-        beta_groups:
+        groups:
           - Internal Testers
