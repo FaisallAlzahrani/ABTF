@@ -40,5 +40,5 @@ workflows:
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         # In Codemagic UI, set APP_STORE_CONNECT_API_KEY as the contents of the .p8 file.
         submit_to_testflight: true
-        groups:
+        beta_groups:
           - Internal Testers
