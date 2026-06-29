@@ -3,6 +3,8 @@ workflows:
     name: iOS TestFlight (IPA)
     max_build_duration: 120
     instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: Code_ABTF_MAGIC
     environment:
       flutter: stable
       xcode: latest
@@ -38,10 +40,7 @@ workflows:
       - flutter_drive.log
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY
-        key_id: $APP_STORE_CONNECT_KEY_ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        # In Codemagic UI, set APP_STORE_CONNECT_API_KEY as the contents of the .p8 file.
+        auth: integration
         submit_to_testflight: true
         beta_groups:
           - Internal Testers
