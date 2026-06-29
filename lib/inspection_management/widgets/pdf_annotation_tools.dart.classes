@@ -1,0 +1,27 @@
+class TextAnnotation {
+  final String text;
+  final Offset position;
+  final Color color;
+  final double fontSize;
+
+  TextAnnotation({
+    required this.text,
+    required this.position,
+    required this.color,
+    required this.fontSize,
+  });
+}
+
+class SignatureAnnotation {
+  final List<DrawingPoint> points;
+  final Offset position;
+  final Color color;
+  final double strokeWidth;
+
+  SignatureAnnotation({
+    required this.points,
+    required this.position,
+    required this.color,
+    required this.strokeWidth,
+  });
+}

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "241071190796",
+    "project_id": "towerapp-fec08",
+    "storage_bucket": "towerapp-fec08.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241071190796:android:78c953e521fa3ef77e4f29",
+        "android_client_info": {
+          "package_name": "com.FaisalZahrani.ABTFApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2Xm2UhmRJeVFqdN_jaS4XqtmcYV3tRtA"
+        },
+        {
+          "current_key": "AIzaSyDe_bo8mZcSVbf5TSrTOUTy1bYZPIYzDPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241071190796:android:ab5b3f4dc94abc617e4f29",
+        "android_client_info": {
+          "package_name": "com.example.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2Xm2UhmRJeVFqdN_jaS4XqtmcYV3tRtA"
+        },
+        {
+          "current_key": "AIzaSyDe_bo8mZcSVbf5TSrTOUTy1bYZPIYzDPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
