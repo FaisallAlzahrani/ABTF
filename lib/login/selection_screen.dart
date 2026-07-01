@@ -1,8 +1,6 @@
 
-import 'package:application_v1/home/home_screen.dart';
 import 'package:application_v1/login/login_screen.dart';
 import 'package:flutter/material.dart';
-import '../Announcement/Announcement.dart';
 import 'local_login.dart';
 
 class SelectionScreen extends StatelessWidget {
@@ -14,136 +12,199 @@ class SelectionScreen extends StatelessWidget {
 
   Widget build(BuildContext context) {
 
-    double screenHeight = 0 ;
-    double screenWidth = 0 ;
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
+    final size = MediaQuery.of(context).size;
+    final isWide = size.width >= 700;
+    const brand = Color(0xFF104164);
 
-      backgroundColor: Colors.grey[250],
-
-      body: Container(
-
-        child: Column(
-
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Column(
+    Widget buildOptionCard({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required VoidCallback onTap,
+    }) {
+      return Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
               children: [
                 Container(
-                  height: screenHeight* 0.09,
-                  width: screenWidth* 0.85,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: Colors.lightBlue[50],
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    color: brand.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
                   ),
+                  child: Icon(icon, color: brand, size: 28),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Padding(padding: EdgeInsets.only(
-                        top: screenHeight * 0.03
-                      ),),
-                      Text('Please Select your Orgnization',
-                      style: TextStyle(
-                          color: Colors.blue[900],overflow: TextOverflow.ellipsis,
-
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenHeight*0.024),)
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: brand,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.25,
+                          color: Colors.black.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
-                )
-
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.black.withValues(alpha: 0.35),
+                ),
               ],
             ),
-            Padding(padding: EdgeInsets.only(
-              top: screenHeight * 0.1
-            )),
+          ),
+        ),
+      );
+    }
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(right: screenHeight*0.015,left: screenHeight*0.00001,top: screenHeight*0.014),
-                  child: GestureDetector(
-                    onTap: () {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context){
-        return LoginScreen();
-      }),); },
-
-                    child: Container(
-                      height: screenHeight * 0.25,
-                      width: screenWidth * 0.40,
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue[50],
-                        borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                      ),
-                      child: Column(
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isWide ? 760 : 520),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              child: Card(
+                elevation: 0,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(26),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-
-                          Padding(
-                            padding: EdgeInsets.only(top: screenHeight*0.07 , bottom: screenHeight*0.007),
-                            child: Icon(Icons.engineering,
-                              color: Colors.lightBlue[900],
-                              size: screenHeight*0.115,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.asset(
+                              'assest/images/Icon.png',
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          Text("Al-babtain Employee ",style: TextStyle(
-                              color: Colors.blue[900],overflow: TextOverflow.ellipsis,
-
-                              fontWeight: FontWeight.bold,
-                              fontSize: screenHeight*0.024),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome',
+                                  style: TextStyle(
+                                    color: brand,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Choose how you want to sign in',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.only(top: screenHeight*0.015),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Perform action when container is clicked
-                      print('Container 6 clicked');
-                      print ('CopyRight© جميع الحقوق محفوظة لفيصل الزهراني © 2025');
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                        return LocalLoginPage();
-                      }),); },
-                    child: Container(
-                      height: screenHeight * 0.25,
-                      width: screenWidth * 0.40,
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue[50],
-                        borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                      ),
-                      child: Column(
-                        children: [
-
-                          Padding(
-                            padding: EdgeInsets.only(top: screenHeight*0.07 , bottom: screenHeight*0.007),
-                            child: Icon(Icons.local_activity,
-                              color: Colors.lightBlue[900],
-                              size: screenHeight*0.115,),
-                          ),
-
-                          Text("Local"
-                            ,style: TextStyle(
-                              color: Colors.lightBlue[900],overflow: TextOverflow.ellipsis,
-                              fontSize: screenHeight*0.026,
-                              fontWeight: FontWeight.bold,
-
+                      const SizedBox(height: 18),
+                      if (isWide)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: buildOptionCard(
+                                icon: Icons.engineering,
+                                title: 'Employee',
+                                subtitle: 'Company users (requires your employee account)',
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                  );
+                                },
+                              ),
                             ),
-                          )
-                        ],
-                      ),
-                    ),
-
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: buildOptionCard(
+                                icon: Icons.lock_outline,
+                                title: 'Local',
+                                subtitle: 'Public / review login (works on any internet)',
+                                onTap: () {
+                                  print('Container 6 clicked');
+                                  print('CopyRight© جميع الحقوق محفوظة لفيصل الزهراني © 2025');
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (context) => const LocalLoginPage()),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          children: [
+                            buildOptionCard(
+                              icon: Icons.engineering,
+                              title: 'Employee',
+                              subtitle: 'Company users (requires your employee account)',
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            buildOptionCard(
+                              icon: Icons.lock_outline,
+                              title: 'Local',
+                              subtitle: 'Public / review login (works on any internet)',
+                              onTap: () {
+                                print('Container 6 clicked');
+                                print('CopyRight© جميع الحقوق محفوظة لفيصل الزهراني © 2025');
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => const LocalLoginPage()),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
-              ],
-
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
