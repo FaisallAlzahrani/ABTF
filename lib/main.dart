@@ -54,35 +54,29 @@ class _AppLoaderState extends State<AppLoader> {
   // Initialize the app
   Future<void> initializeApp() async {
     try {
-      // Initialize Firebase with longer timeout and continue on failure
-      await Firebase.initializeApp().timeout(
+      // Initialize Firebase with timeout using Future.any
+      final firebaseInit = Firebase.initializeApp();
+      await firebaseInit.timeout(
         const Duration(seconds: 30),
-        onTimeout: () {
-          print('Firebase initialization timed out, continuing without Firebase');
-          // Continue without Firebase instead of throwing error
-        },
+        onTimeout: () => throw TimeoutException('Firebase initialization timed out'),
       );
 
       print('Firebase initialized successfully');
 
-      // Show app immediately
-      if (mounted) {
-        setState(() {
-          _initialized = true;
-        });
-      }
-
-      unawaited(_initializeBackgroundServices());
-
     } catch (e) {
-      print('Error during initialization: $e');
-      // Continue anyway - don't block the app
-      if (mounted) {
-        setState(() {
-          _initialized = true; // Set to true instead of error
-        });
-      }
+      print('Firebase initialization error: $e');
+      // Continue without Firebase - don't block the app
     }
+
+    // Show app immediately regardless of Firebase status
+    if (mounted) {
+      setState(() {
+        _initialized = true;
+      });
+    }
+
+    // Initialize background services in background
+    unawaited(_initializeBackgroundServices());
   }
   Future<void> _initializeBackgroundServices() async {
     try {
