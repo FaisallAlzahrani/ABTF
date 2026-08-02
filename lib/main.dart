@@ -21,6 +21,13 @@ void main() {
     // Ensure Flutter is initialized
     WidgetsFlutterBinding.ensureInitialized();
 
+    // Set up error handling for Flutter framework errors
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      print('Flutter error: ${details.exception}');
+      print('Stack trace: ${details.stack}');
+    };
+
     // Run the app without wrapping it with UserProvider here
     runApp(const AppLoader());
   }, (error, stack) {
@@ -43,6 +50,7 @@ class _AppLoaderState extends State<AppLoader> {
   bool _initialized = false;
   bool _error = false;
   String _errorMessage = '';
+  String _debugInfo = '';
 
 
   // No need for didChangeDependencies here anymore
@@ -54,7 +62,17 @@ class _AppLoaderState extends State<AppLoader> {
   // Initialize the app
   Future<void> initializeApp() async {
     try {
+      print('Starting app initialization...');
+      setState(() {
+        _debugInfo += 'Starting app initialization...\n';
+      });
+
       // Initialize Firebase with timeout using Future.any
+      print('Initializing Firebase...');
+      setState(() {
+        _debugInfo += 'Initializing Firebase...\n';
+      });
+
       final firebaseInit = Firebase.initializeApp();
       await firebaseInit.timeout(
         const Duration(seconds: 30),
@@ -62,9 +80,17 @@ class _AppLoaderState extends State<AppLoader> {
       );
 
       print('Firebase initialized successfully');
+      setState(() {
+        _debugInfo += 'Firebase initialized successfully\n';
+      });
 
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Firebase initialization error: $e');
+      print('Stack trace: $stackTrace');
+      setState(() {
+        _debugInfo += 'Firebase error: $e\n';
+        _debugInfo += 'Stack: $stackTrace\n';
+      });
       // Continue without Firebase - don't block the app
     }
 
@@ -74,6 +100,11 @@ class _AppLoaderState extends State<AppLoader> {
         _initialized = true;
       });
     }
+
+    print('App initialization completed, showing UI');
+    setState(() {
+      _debugInfo += 'App initialization completed\n';
+    });
 
     // Initialize background services in background
     unawaited(_initializeBackgroundServices());
@@ -169,6 +200,25 @@ class _AppLoaderState extends State<AppLoader> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              if (_debugInfo.isNotEmpty) ...[
+                                const SizedBox(height: 20),
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    _debugInfo,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10,
+                                      fontFamily: 'monospace',
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
