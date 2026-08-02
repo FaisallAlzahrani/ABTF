@@ -3,6 +3,7 @@ import 'package:application_v1/home/Maintanace.dart';
 import 'package:application_v1/login/Forget.dart';
 import 'package:application_v1/login/selection_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';  // Import Firebase Auth
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -38,6 +39,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final LocalAuthentication auth = LocalAuthentication();
 
   bool _loadingDialogOpen = false;
+
+  // Check if Firebase is initialized
+  bool get _isFirebaseInitialized {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
 
   Future<void> _showBlockingLoading() async {
     if (!mounted || _loadingDialogOpen) return;
@@ -248,12 +258,17 @@ class _LoginScreenState extends State<LoginScreen> {
         // 3. FIREBASE LOGIN (ONLY)
         // =========================
         try {
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: "admin@app.com.sa",
-            password: "11223344",
-          );
+          if (_isFirebaseInitialized) {
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: "admin@app.com.sa",
+              password: "11223344",
+            );
+          } else {
+            print("Firebase not initialized, skipping Firebase login");
+          }
         } catch (e) {
-          loginResult["message"] = "Firebase login failed: $e";
+          print("Firebase login failed: $e");
+          // Don't fail the entire login if Firebase fails
         }
 
         return loginResult;
@@ -328,7 +343,14 @@ class _LoginScreenState extends State<LoginScreen> {
           );
 
           if (loginResult['status']) {
-            final fcmToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 12));
+            String? fcmToken;
+            if (_isFirebaseInitialized) {
+              try {
+                fcmToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 12));
+              } catch (e) {
+                print("Failed to get FCM token: $e");
+              }
+            }
 
           // Save login session state
           final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -346,15 +368,22 @@ class _LoginScreenState extends State<LoginScreen> {
           await userProvider.updateEmail(loginDetails['username']!);
           await userProvider.updateEmpId(loginResult['id']);
           await userProvider.updatedeoartment_id(loginResult['department']);
-          await userProvider.updateFcmToken(fcmToken!);
+          if (fcmToken != null) {
+            await userProvider.updateFcmToken(fcmToken);
+          }
 
-
-          await FirebaseMessagingService.saveUserDataToFirebase(
-            email: loginDetails['username']!,
-            departmentId: loginResult['department'],
-            name: loginResult['name'],
-            fcmToken: fcmToken!,
-          );
+          if (_isFirebaseInitialized && fcmToken != null) {
+            try {
+              await FirebaseMessagingService.saveUserDataToFirebase(
+                email: loginDetails['username']!,
+                departmentId: loginResult['department'],
+                name: loginResult['name'],
+                fcmToken: fcmToken!,
+              );
+            } catch (e) {
+              print("Failed to save user data to Firebase: $e");
+            }
+          }
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -671,8 +700,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                             print("DEPT = ${loginResult['department_id']}");
 
                                             if (loginResult['status']) {
-                                              final fcmToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 12));
-
+                                              String? fcmToken;
+                                              if (_isFirebaseInitialized) {
+                                                try {
+                                                  fcmToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 12));
+                                                } catch (e) {
+                                                  print("Failed to get FCM token: $e");
+                                                }
+                                              }
 
                                             // Save complete user session data
                                             final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -691,15 +726,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                             await userProvider.updateEmail(emailController.text);
                                             await userProvider.updateEmpId(loginResult['id']);
                                             await userProvider.updatedeoartment_id(loginResult['department']);
-                                            await userProvider.updateFcmToken(fcmToken!);
+                                            if (fcmToken != null) {
+                                              await userProvider.updateFcmToken(fcmToken);
+                                            }
 
-
-                                            await FirebaseMessagingService.saveUserDataToFirebase(
-                                              email: emailController.text,
-                                              departmentId: loginResult['department'],
-                                              name: loginResult['name'],
-                                              fcmToken: fcmToken!,
-                                            );
+                                            if (_isFirebaseInitialized && fcmToken != null) {
+                                              try {
+                                                await FirebaseMessagingService.saveUserDataToFirebase(
+                                                  email: emailController.text,
+                                                  departmentId: loginResult['department'],
+                                                  name: loginResult['name'],
+                                                  fcmToken: fcmToken!,
+                                                );
+                                              } catch (e) {
+                                                print("Failed to save user data to Firebase: $e");
+                                              }
+                                            }
 
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
