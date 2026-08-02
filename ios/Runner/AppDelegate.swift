@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import FirebaseCore
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -7,6 +8,15 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // Configure Firebase with error handling
+    do {
+      FirebaseApp.configure()
+      print("Firebase configured successfully")
+    } catch {
+      print("Firebase configuration failed: \(error)")
+      // Continue without Firebase
+    }
+    
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

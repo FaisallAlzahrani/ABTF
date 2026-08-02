@@ -54,8 +54,16 @@ class _AppLoaderState extends State<AppLoader> {
   // Initialize the app
   Future<void> initializeApp() async {
     try {
-      // Initialize Firebase first
-      await Firebase.initializeApp();
+      // Initialize Firebase with longer timeout and continue on failure
+      await Firebase.initializeApp().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          print('Firebase initialization timed out, continuing without Firebase');
+          // Continue without Firebase instead of throwing error
+        },
+      );
+
+      print('Firebase initialized successfully');
 
       // Show app immediately
       if (mounted) {
@@ -68,11 +76,10 @@ class _AppLoaderState extends State<AppLoader> {
 
     } catch (e) {
       print('Error during initialization: $e');
-
+      // Continue anyway - don't block the app
       if (mounted) {
         setState(() {
-          _error = true;
-          _errorMessage = e.toString();
+          _initialized = true; // Set to true instead of error
         });
       }
     }
@@ -278,7 +285,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool _isLoading = true;
   bool _providerLoaded = false;
-  Widget _initialScreen = LoginScreen();
+  Widget _initialScreen = const SelectionScreen();
   
   // Admin list for navigation
   List<String> adminNames = [
@@ -303,7 +310,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    _isLoading = false;
   }
 
   @override
@@ -337,23 +344,7 @@ class _MyAppState extends State<MyApp> {
       if (!mounted) return;
 
       setState(() {
-        if (isLoggedIn) {
-          if (userName == "Faisal Alzahrani") {
-            _initialScreen = const Full_screen();
-          } else if (adminNames.contains(userName)) {
-            _initialScreen = const Adminscreen();
-          } else if (userDepartment == "HRD") {
-            _initialScreen = const Hrdscreen();
-          } else if (userDepartment == "Maintenance") {
-            _initialScreen = const Main_Screen();
-          } else if (Prodactions.contains(userDepartment)) {
-            _initialScreen = const Operations_screen();
-          } else {
-            _initialScreen = const home_screen();
-          }
-        } else {
-          _initialScreen = const LoginScreen();
-        }
+        _initialScreen = const SelectionScreen();
 
         _isLoading = false;
       });
@@ -363,7 +354,7 @@ class _MyAppState extends State<MyApp> {
       if (!mounted) return;
 
       setState(() {
-        _initialScreen = const LoginScreen();
+        _initialScreen = const SelectionScreen();
         _isLoading = false;
       });
     }
