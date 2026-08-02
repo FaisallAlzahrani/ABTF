@@ -1,6 +1,5 @@
 import Flutter
 import UIKit
-import FirebaseCore
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -8,18 +7,8 @@ import FirebaseCore
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // Configure Firebase with proper error handling
-    if FirebaseApp.app() == nil {
-      do {
-        try FirebaseApp.configure()
-        print("✅ Firebase configured successfully in AppDelegate")
-      } catch {
-        print("❌ Firebase configuration failed: \(error)")
-        // Continue without Firebase - don't crash
-      }
-    } else {
-      print("✅ Firebase already configured")
-    }
+    // Firebase will be initialized in Flutter (main.dart)
+    // Do NOT configure here to prevent crashes
     
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
