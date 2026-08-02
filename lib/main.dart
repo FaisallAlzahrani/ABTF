@@ -67,31 +67,41 @@ class _AppLoaderState extends State<AppLoader> {
         _debugInfo += 'Starting app initialization...\n';
       });
 
-      // Initialize Firebase with timeout using Future.any
+      // Initialize Firebase with timeout
       print('Initializing Firebase...');
       setState(() {
         _debugInfo += 'Initializing Firebase...\n';
       });
 
-      final firebaseInit = Firebase.initializeApp();
-      await firebaseInit.timeout(
-        const Duration(seconds: 30),
-        onTimeout: () => throw TimeoutException('Firebase initialization timed out'),
-      );
+      try {
+        await Firebase.initializeApp().timeout(
+          const Duration(seconds: 30),
+          onTimeout: () {
+            throw TimeoutException('Firebase initialization timed out');
+          },
+        );
 
-      print('Firebase initialized successfully');
-      setState(() {
-        _debugInfo += 'Firebase initialized successfully\n';
-      });
+        print('Firebase initialized successfully');
+        print('Firebase apps: ${Firebase.apps.length}');
+        setState(() {
+          _debugInfo += 'Firebase initialized successfully\n';
+          _debugInfo += 'Firebase apps count: ${Firebase.apps.length}\n';
+        });
+      } catch (e) {
+        print('Firebase initialization failed: $e');
+        setState(() {
+          _debugInfo += 'Firebase initialization failed: $e\n';
+        });
+        // Don't rethrow - continue without Firebase
+      }
 
     } catch (e, stackTrace) {
-      print('Firebase initialization error: $e');
+      print('App initialization error: $e');
       print('Stack trace: $stackTrace');
       setState(() {
-        _debugInfo += 'Firebase error: $e\n';
+        _debugInfo += 'App error: $e\n';
         _debugInfo += 'Stack: $stackTrace\n';
       });
-      // Continue without Firebase - don't block the app
     }
 
     // Show app immediately regardless of Firebase status

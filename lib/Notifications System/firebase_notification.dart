@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'local_notifaction.dart';
 import 'package:flutter/foundation.dart'; // 👈 Add this
 
@@ -10,8 +11,21 @@ class FirebaseMessagingService {
     print('Background message received: ${message.messageId}');
   }
 
+  static bool get isFirebaseInitialized {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static void setupFirebaseMessaging() {
     try {
+      if (!isFirebaseInitialized) {
+        print('Firebase not initialized, skipping messaging setup');
+        return;
+      }
+
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
       FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
@@ -37,6 +51,11 @@ class FirebaseMessagingService {
 
   static Future<void> requestNotificationPermissions() async {
     try {
+      if (!isFirebaseInitialized) {
+        print('Firebase not initialized, skipping permission request');
+        return;
+      }
+
       NotificationSettings settings =
       await FirebaseMessaging.instance.requestPermission(
         alert: true,
@@ -55,11 +74,21 @@ class FirebaseMessagingService {
   }
 
   static Future<String?> getFCMToken() async {
-    String? token = await FirebaseMessaging.instance.getToken();
-    if (token != null) {
-      print('FCM Token: $token');
+    try {
+      if (!isFirebaseInitialized) {
+        print('Firebase not initialized, cannot get FCM token');
+        return null;
+      }
+
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        print('FCM Token: $token');
+      }
+      return token;
+    } catch (e) {
+      print('Error getting FCM token: $e');
+      return null;
     }
-    return token;
   }
 
   static Future<void> saveUserDataToFirebase({
@@ -69,6 +98,17 @@ class FirebaseMessagingService {
     required String fcmToken,
   }) async {
     try {
+      if (!isFirebaseInitialized) {
+        print('Firebase not initialized, cannot save user data to Firestore');
+        return;
+      }
+
+      print('Saving user data to Firestore...');
+      print('Email: $email');
+      print('Department: $departmentId');
+      print('Name: $name');
+      print('FCM Token: $fcmToken');
+
       final userRef = FirebaseFirestore.instance
           .collection('Notification_system')
           .doc(email);
@@ -78,11 +118,12 @@ class FirebaseMessagingService {
         'department_id': departmentId,
         'name': name,
         'fcm_token': fcmToken,
+        'updated_at': DateTime.now().toIso8601String(),
       }, SetOptions(merge: true));
 
-      print('User data with FCM token saved successfully to Firebase.');
+      print('✅ User data with FCM token saved successfully to Firebase.');
     } catch (e) {
-      print('Error saving user data: $e');
+      print('❌ Error saving user data to Firebase: $e');
     }
   }
 }
