@@ -80,11 +80,23 @@ class _AppLoaderState extends State<AppLoader> {
   }
   Future<void> _initializeBackgroundServices() async {
     try {
-      await LocalNotificationsService.setupLocalNotifications();
+      // Initialize local notifications
+      try {
+        await LocalNotificationsService.setupLocalNotifications();
+        print("Local notifications initialized");
+      } catch (e) {
+        print("Local notifications failed: $e");
+      }
 
-      FirebaseMessagingService.setupFirebaseMessaging();
+      // Initialize Firebase messaging only if Firebase is initialized
+      try {
+        FirebaseMessagingService.setupFirebaseMessaging();
+        print("Firebase messaging initialized");
+      } catch (e) {
+        print("Firebase messaging failed: $e");
+      }
 
-      print("Background services initialized");
+      print("Background services initialization completed");
     } catch (e) {
       print("Background initialization error: $e");
     }

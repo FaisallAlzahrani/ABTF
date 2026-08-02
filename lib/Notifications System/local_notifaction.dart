@@ -5,26 +5,32 @@ class LocalNotificationsService {
   FlutterLocalNotificationsPlugin();
 
   static Future<void> setupLocalNotifications() async {
-    const AndroidInitializationSettings androidInitializationSettings =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    try {
+      const AndroidInitializationSettings androidInitializationSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings =
-    InitializationSettings(android: androidInitializationSettings);
+      const InitializationSettings initializationSettings =
+      InitializationSettings(android: androidInitializationSettings);
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+      await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-    // Create a notification channel for Android
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'channel_id', // ID
-      'channel_name', // Name
-      description: 'This channel is used for important notifications.', // Description
-      importance: Importance.high,
-    );
+      // Create a notification channel for Android
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'channel_id', // ID
+        'channel_name', // Name
+        description: 'This channel is used for important notifications.', // Description
+        importance: Importance.high,
+      );
 
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+
+      print('Local notifications setup completed');
+    } catch (e) {
+      print('Error setting up local notifications: $e');
+    }
   }
 
   static Future<void> showNotification(

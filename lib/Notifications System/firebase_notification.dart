@@ -11,38 +11,46 @@ class FirebaseMessagingService {
   }
 
   static void setupFirebaseMessaging() {
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    try {
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print('Foreground message received: ${message.messageId}');
-      if (message.notification != null) {
-        print('Notification Title: ${message.notification?.title}');
-        print('Notification Body: ${message.notification?.body}');
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        print('Foreground message received: ${message.messageId}');
+        if (message.notification != null) {
+          print('Notification Title: ${message.notification?.title}');
+          print('Notification Body: ${message.notification?.body}');
 
-        // Display the notification
-        await LocalNotificationsService.showNotification(
-          message.notification.hashCode,
-          message.notification?.title,
-          message.notification?.body,
-        );
-      }
-    });
+          // Display the notification
+          await LocalNotificationsService.showNotification(
+            message.notification.hashCode,
+            message.notification?.title,
+            message.notification?.body,
+          );
+        }
+      });
 
-    requestNotificationPermissions();
+      requestNotificationPermissions();
+    } catch (e) {
+      print('Error setting up Firebase messaging: $e');
+    }
   }
 
   static Future<void> requestNotificationPermissions() async {
-    NotificationSettings settings =
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      NotificationSettings settings =
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted notification permissions');
-    } else {
-      print('User declined notification permissions');
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        print('User granted notification permissions');
+      } else {
+        print('User declined notification permissions');
+      }
+    } catch (e) {
+      print('Error requesting notification permissions: $e');
     }
   }
 
