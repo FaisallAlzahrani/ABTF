@@ -28,18 +28,18 @@ workflows:
         script: |
           cd ios
           pod install
-          - name: Archive generated iOS files
-  script: |
-    mkdir -p generated_ios
+      - name: Archive generated iOS files
+        script: |
+          mkdir -p generated_ios
 
-    cp ios/Podfile generated_ios/ || true
-    cp ios/Podfile.lock generated_ios/ || true
-    cp ios/Runner.xcodeproj/project.pbxproj generated_ios/ || true
-    cp ios/Runner/GoogleService-Info.plist generated_ios/ || true
+          cp ios/Podfile generated_ios/ || true
+          cp ios/Podfile.lock generated_ios/ || true
+          cp ios/Runner.xcodeproj/project.pbxproj generated_ios/ || true
+          cp ios/Runner/GoogleService-Info.plist generated_ios/ || true
 
-    cd ios
-    pod env > ../generated_ios/pod_env.txt
-    pod --version > ../generated_ios/pod_version.txt
+          cd ios
+          pod env > ../generated_ios/pod_env.txt
+          pod --version > ../generated_ios/pod_version.txt
       - name: Build IPA
         script: |
           flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
