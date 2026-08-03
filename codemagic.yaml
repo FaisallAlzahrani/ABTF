@@ -28,19 +28,19 @@ workflows:
           flutter pub deps | grep firebase || true
       - name: Check generated plugins
         script: |
-        echo "===== GeneratedPluginRegistrant ====="
-        find ios -name "GeneratedPluginRegistrant*"
+          echo "===== GeneratedPluginRegistrant ====="
+          find ios -name "GeneratedPluginRegistrant*"
 
-        if [ -f ios/Runner/GeneratedPluginRegistrant.m ]; then
+          if [ -f ios/Runner/GeneratedPluginRegistrant.m ]; then
           cat ios/Runner/GeneratedPluginRegistrant.m
-        fi
+          fi
 
-        if [ -f ios/Runner/GeneratedPluginRegistrant.swift ]; then
+          if [ -f ios/Runner/GeneratedPluginRegistrant.swift ]; then
           cat ios/Runner/GeneratedPluginRegistrant.swift
-        fi
+          fi
 
-        echo "===== .flutter-plugins-dependencies ====="
-        cat .flutter-plugins-dependencies
+          echo "===== .flutter-plugins-dependencies ====="
+          cat .flutter-plugins-dependencies
 
       - name: Configure code signing (App Store Connect)
         script: |
