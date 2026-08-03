@@ -50,6 +50,7 @@ workflows:
       - build/ios/archive/*.xcresult
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
+      - generated_ios/**
     publishing:
       app_store_connect:
         auth: integration
