@@ -41,6 +41,28 @@ workflows:
 
           echo "===== .flutter-plugins-dependencies ====="
           cat .flutter-plugins-dependencies
+          - name: Debug iOS plugins
+        script: |
+          echo "===== iOS .symlinks ====="
+          find ios/.symlinks -maxdepth 2 -type d || true
+
+          echo "===== Firebase plugin folders ====="
+          ls -la ios/.symlinks/plugins/firebase_core || true
+          ls -la ios/.symlinks/plugins/firebase_auth || true
+          ls -la ios/.symlinks/plugins/cloud_firestore || true
+          ls -la ios/.symlinks/plugins/firebase_messaging || true
+          ls -la ios/.symlinks/plugins/firebase_storage || true
+          - name: Show GeneratedPluginRegistrant
+        script: |
+          find ios -name "GeneratedPluginRegistrant*"
+
+          if [ -f ios/Runner/GeneratedPluginRegistrant.m ]; then
+          cat ios/Runner/GeneratedPluginRegistrant.m
+          fi
+
+          if [ -f ios/Runner/GeneratedPluginRegistrant.swift ]; then
+           cat ios/Runner/GeneratedPluginRegistrant.swift
+          fi
 
       - name: Configure code signing (App Store Connect)
         script: |
