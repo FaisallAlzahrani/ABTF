@@ -17,7 +17,11 @@ workflows:
         XCODE_SCHEME: "Runner"
     scripts:
       - name: Flutter packages get
-        script: flutter pub get
+          script: |
+              flutter clean
+              flutter pub get
+              echo "===== Firebase packages ====="
+              flutter pub deps | grep firebase || true
       - name: Configure code signing (App Store Connect)
         script: |
           keychain initialize
