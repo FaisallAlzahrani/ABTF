@@ -88,7 +88,7 @@ Future<void> initializeApp() async {
       appId: '1:241071190796:ios:79a8fb36027cf6f67e4f29',
       messagingSenderId:'241071190796',
       projectId: 'towerapp-fec08',
-      iosBundleId: 'com.your.bundle',
+      iosBundleId: 'com.FaisalZahrani.ABTFApp',
     )):await Firebase.initializeApp().timeout(
       const Duration(seconds: 30),
       onTimeout: () {
