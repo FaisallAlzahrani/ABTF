@@ -3,8 +3,10 @@ workflows:
     name: iOS TestFlight (IPA)
     max_build_duration: 120
     instance_type: mac_mini_m2
+
     integrations:
       app_store_connect: Code_ABTF_MAGIC
+
     environment:
       flutter: stable
       xcode: latest
@@ -15,23 +17,33 @@ workflows:
         BUNDLE_ID: "com.FaisalZahrani.ABTFApp"
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
+
     scripts:
       - name: Flutter packages get
-          script: |
-              flutter clean
-              flutter pub get
-              echo "===== Firebase packages ====="
-              flutter pub deps | grep firebase || true
+        script: |
+          flutter clean
+          flutter pub get
+
+          echo "===== Firebase packages ====="
+          flutter pub deps | grep firebase || true
+
       - name: Configure code signing (App Store Connect)
         script: |
           keychain initialize
           app-store-connect fetch-signing-files "${BUNDLE_ID}" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
+
       - name: Install CocoaPods
         script: |
           cd ios
-          pod install
+          rm -f Podfile.lock
+          pod repo update
+          pod install --verbose
+
+          echo "===== FIREBASE PODS ====="
+          grep -i Firebase Podfile.lock || true
+
       - name: Archive generated iOS files
         script: |
           mkdir -p generated_ios
@@ -44,9 +56,25 @@ workflows:
           cd ios
           pod env > ../generated_ios/pod_env.txt
           pod --version > ../generated_ios/pod_version.txt
+
       - name: Build IPA
         script: |
-          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
+
+      - name: Verify Runner.app
+        script: |
+          APP=$(find build/ios/archive -name Runner.app | head -1)
+
+          echo "Runner.app:"
+          echo "$APP"
+
+          echo "===== GoogleService-Info.plist ====="
+          find "$APP" -name "GoogleService-Info.plist"
+
+          echo "===== Firebase Frameworks ====="
+          find "$APP" -name "*Firebase*"
+
     artifacts:
       - build/ios/ipa/*.ipa
       - build/**/ipa/*.ipa
@@ -55,6 +83,8 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
       - generated_ios/**
+      - ios/Podfile.lock
+
     publishing:
       app_store_connect:
         auth: integration
