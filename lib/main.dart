@@ -16,7 +16,7 @@ import 'login/selection_screen.dart';
 import 'login/user_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
-import 'firebase_options.dart';
+
 
 void main() {
   // Catch any errors that occur during Flutter initialization
