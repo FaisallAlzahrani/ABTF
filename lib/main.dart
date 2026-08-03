@@ -15,6 +15,8 @@ import 'Notifications System/local_notifaction.dart';
 import 'login/selection_screen.dart';
 import 'login/user_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:io';
+import 'firebase_options.dart';
 
 void main() {
   // Catch any errors that occur during Flutter initialization
@@ -86,6 +88,7 @@ Future<void> initializeApp() async {
       appId: '1:241071190796:ios:79a8fb36027cf6f67e4f29',
       messagingSenderId:'241071190796',
       projectId: 'towerapp-fec08',
+      iosBundleId: 'com.your.bundle',
     )):await Firebase.initializeApp().timeout(
       const Duration(seconds: 30),
       onTimeout: () {
