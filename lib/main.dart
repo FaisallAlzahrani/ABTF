@@ -81,12 +81,12 @@ Future<void> initializeApp() async {
 
     print("Initializing Firebase...");
 
-    final FirebaseApp app = await Firebase.initializeApp(options: const FirebaseOptions(
-      apikey: 'AIzaSyA9VSOATv5eWQ54Yu5zGd8-eCkgaJVcC_U',
+    final FirebaseApp app = Platform.isIOS ? await Firebase.initializeApp(options: const FirebaseOptions(
+      apiKey: 'AIzaSyA9VSOATv5eWQ54Yu5zGd8-eCkgaJVcC_U',
       appId: '1:241071190796:ios:79a8fb36027cf6f67e4f29',
       messagingSenderId:'241071190796',
       projectId: 'towerapp-fec08',
-    )).timeout(
+    )):await Firebase.initializeApp().timeout(
       const Duration(seconds: 30),
       onTimeout: () {
         throw TimeoutException("Firebase initialization timed out");
