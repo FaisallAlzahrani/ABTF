@@ -99,18 +99,24 @@ workflows:
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
 
-      - name: Verify Runner.app
+      - name: Verify Firebase resources
         script: |
           APP=$(find build/ios/archive -name Runner.app | head -1)
 
           echo "Runner.app:"
           echo "$APP"
 
-          echo "===== GoogleService-Info.plist ====="
-          find "$APP" -name "GoogleService-Info.plist"
+          echo "========== ROOT FILES =========="
+          ls -la "$APP"
 
-          echo "===== Firebase Frameworks ====="
-          find "$APP" -name "*Firebase*"
+          echo "========== SEARCH GOOGLE =========="
+          find "$APP" -iname "*google*"
+
+          echo "========== SEARCH PLIST =========="
+          find "$APP" -iname "*.plist"
+
+          echo "========== SEARCH FIREBASE =========="
+          find "$APP" -iname "*firebase*"
 
     artifacts:
       - build/ios/ipa/*.ipa
