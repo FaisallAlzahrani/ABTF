@@ -2,6 +2,8 @@ import 'package:application_v1/home/Main_Screen.dart';
 import 'package:application_v1/login/selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 
 
 
@@ -26,8 +28,39 @@ class _LocalLoginPageState extends State<LocalLoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      if (!mounted) return;
+      await _auth.signInWithEmailAndPassword(
+  email: email,
+  password: password,
+);
+
+await FirebaseMessaging.instance.requestPermission(
+  alert: true,
+  badge: true,
+  sound: true,
+);
+
+await Future.delayed(const Duration(seconds: 2));
+
+final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+print("APNS Token: $apnsToken");
+
+final fcmToken = await FirebaseMessaging.instance.getToken();
+print("FCM Token: $fcmToken");
+
+await Clipboard.setData(
+  ClipboardData(text: fcmToken ?? ''),
+);
+
+if (mounted) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        fcmToken ?? "FCM token is null",
+      ),
+      duration: const Duration(seconds: 10),
+    ),
+  );
+}
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const Main_Screen()),
