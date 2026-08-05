@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -43,33 +44,47 @@ class FirebaseMessagingService {
         }
       });
 
+      // Listen for token refresh
+      FirebaseMessaging.instance.onTokenRefresh.listen((String token) {
+        print('🔄 FCM token refreshed: $token');
+      }, onError: (e) {
+        print('❌ FCM token refresh error: $e');
+      });
+
+      // Request notification permissions explicitly on iOS
       requestNotificationPermissions();
     } catch (e) {
       print('Error setting up Firebase messaging: $e');
     }
   }
 
-  static Future<void> requestNotificationPermissions() async {
+  static Future<NotificationSettings> requestNotificationPermissions() async {
     try {
       if (!isFirebaseInitialized) {
         print('Firebase not initialized, skipping permission request');
-        return;
+        return const NotificationSettings(authorizationStatus: AuthorizationStatus.notDetermined);
       }
 
+      print('📱 Requesting notification permissions...');
       NotificationSettings settings =
       await FirebaseMessaging.instance.requestPermission(
         alert: true,
         badge: true,
         sound: true,
+        provisional: false,
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        print('User granted notification permissions');
+        print('✅ User granted notification permissions');
+      } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+        print('ℹ️ User granted provisional notification permissions');
       } else {
-        print('User declined notification permissions');
+        print('❌ User declined notification permissions: ${settings.authorizationStatus}');
       }
+      return settings;
     } catch (e) {
-      print('Error requesting notification permissions: $e');
+      print('❌ Error requesting notification permissions: $e');
+      return const NotificationSettings(authorizationStatus: AuthorizationStatus.notDetermined);
     }
   }
 
@@ -102,13 +117,34 @@ class FirebaseMessagingService {
       if (token != null) {
         print('✅ APNS Token: $token');
       } else {
-        print('ℹ️ APNS Token not yet available (will retry later)');
+        print('ℹ️ APNS Token not yet available');
       }
       return token;
     } catch (e) {
       print('❌ Error getting APNS token: $e');
       return null;
     }
+  }
+
+  static Future<String?> waitForAPNSToken({
+    Duration timeout = const Duration(seconds: 15),
+    Duration interval = const Duration(milliseconds: 500),
+  }) async {
+    if (!isFirebaseInitialized) {
+      print('Firebase not initialized, cannot wait for APNS token');
+      return null;
+    }
+
+    final endTime = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(endTime)) {
+      final token = await getAPNSToken();
+      if (token != null && token.isNotEmpty) {
+        return token;
+      }
+      await Future.delayed(interval);
+    }
+    print('❌ APNS token not available after ${timeout.inSeconds}s');
+    return null;
   }
 
   static Future<void> refreshFCMToken() async {
@@ -128,9 +164,21 @@ class FirebaseMessagingService {
   }
 
   static Future<Map<String, String?>> getTokens() async {
+    // First, request notification permission (required on iOS)
+    final settings = await requestNotificationPermissions();
+
+    // Wait a moment for APNs to register after permission
+    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional) {
+      await Future.delayed(const Duration(seconds: 1));
+    }
+
+    final fcm = await getFCMToken();
+    final apns = await waitForAPNSToken(timeout: const Duration(seconds: 10));
+
     return {
-      'fcm': await getFCMToken(),
-      'apns': await getAPNSToken(),
+      'fcm': fcm,
+      'apns': apns,
     };
   }
 
