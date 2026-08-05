@@ -82,20 +82,64 @@ class FirebaseMessagingService {
 
       String? token = await FirebaseMessaging.instance.getToken();
       if (token != null) {
-        print('FCM Token: $token');
+        print('✅ FCM Token: $token');
       }
       return token;
     } catch (e) {
-      print('Error getting FCM token: $e');
+      print('❌ Error getting FCM token: $e');
       return null;
     }
+  }
+
+  static Future<String?> getAPNSToken() async {
+    try {
+      if (!isFirebaseInitialized) {
+        print('Firebase not initialized, cannot get APNS token');
+        return null;
+      }
+
+      String? token = await FirebaseMessaging.instance.getAPNSToken();
+      if (token != null) {
+        print('✅ APNS Token: $token');
+      } else {
+        print('ℹ️ APNS Token not yet available (will retry later)');
+      }
+      return token;
+    } catch (e) {
+      print('❌ Error getting APNS token: $e');
+      return null;
+    }
+  }
+
+  static Future<void> refreshFCMToken() async {
+    try {
+      if (!isFirebaseInitialized) {
+        print('Firebase not initialized, cannot refresh token');
+        return;
+      }
+
+      print('Refreshing FCM token...');
+      await FirebaseMessaging.instance.deleteToken();
+      String? token = await FirebaseMessaging.instance.getToken();
+      print('✅ Refreshed FCM Token: $token');
+    } catch (e) {
+      print('❌ Error refreshing FCM token: $e');
+    }
+  }
+
+  static Future<Map<String, String?>> getTokens() async {
+    return {
+      'fcm': await getFCMToken(),
+      'apns': await getAPNSToken(),
+    };
   }
 
   static Future<void> saveUserDataToFirebase({
     required String email,
     required String departmentId,
     required String name,
-    required String fcmToken,
+    String? fcmToken,
+    String? apnsToken,
   }) async {
     try {
       if (!isFirebaseInitialized) {
@@ -108,20 +152,29 @@ class FirebaseMessagingService {
       print('Department: $departmentId');
       print('Name: $name');
       print('FCM Token: $fcmToken');
+      print('APNS Token: $apnsToken');
 
       final userRef = FirebaseFirestore.instance
           .collection('Notification_system')
           .doc(email);
 
-      await userRef.set({
+      final data = <String, dynamic>{
         'email': email,
         'department_id': departmentId,
         'name': name,
-        'fcm_token': fcmToken,
         'updated_at': DateTime.now().toIso8601String(),
-      }, SetOptions(merge: true));
+      };
 
-      print('✅ User data with FCM token saved successfully to Firebase.');
+      if (fcmToken != null) {
+        data['fcm_token'] = fcmToken;
+      }
+      if (apnsToken != null) {
+        data['apns_token'] = apnsToken;
+      }
+
+      await userRef.set(data, SetOptions(merge: true));
+
+      print('✅ User data with tokens saved successfully to Firebase.');
     } catch (e) {
       print('❌ Error saving user data to Firebase: $e');
     }

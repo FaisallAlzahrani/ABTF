@@ -344,11 +344,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
           if (loginResult['status']) {
             String? fcmToken;
+            String? apnsToken;
             if (_isFirebaseInitialized) {
               try {
-                fcmToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 12));
+                final tokens = await FirebaseMessagingService.getTokens();
+                fcmToken = tokens['fcm'];
+                apnsToken = tokens['apns'];
               } catch (e) {
-                print("Failed to get FCM token: $e");
+                print("Failed to get FCM/APNS tokens: $e");
               }
             }
 
@@ -361,7 +364,6 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setString('userId', loginResult['id']);
           await prefs.setString('userDepartment', loginResult['department']);
           await prefs.setString('userType', 'employee'); // Simple user type for session persistence
-
           // Update UserProvider with user data
           final userProvider = Provider.of<UserProvider>(context, listen: false);
           await userProvider.updateFirstName(loginResult['name']);
@@ -372,13 +374,14 @@ class _LoginScreenState extends State<LoginScreen> {
             await userProvider.updateFcmToken(fcmToken);
           }
 
-          if (_isFirebaseInitialized && fcmToken != null) {
+          if (_isFirebaseInitialized) {
             try {
               await FirebaseMessagingService.saveUserDataToFirebase(
                 email: loginDetails['username']!,
                 departmentId: loginResult['department'],
                 name: loginResult['name'],
-                fcmToken: fcmToken!,
+                fcmToken: fcmToken,
+                apnsToken: apnsToken,
               );
             } catch (e) {
               print("Failed to save user data to Firebase: $e");
@@ -701,11 +704,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                             if (loginResult['status']) {
                                               String? fcmToken;
+                                              String? apnsToken;
                                               if (_isFirebaseInitialized) {
                                                 try {
-                                                  fcmToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 12));
+                                                  final tokens = await FirebaseMessagingService.getTokens();
+                                                  fcmToken = tokens['fcm'];
+                                                  apnsToken = tokens['apns'];
                                                 } catch (e) {
-                                                  print("Failed to get FCM token: $e");
+                                                  print("Failed to get FCM/APNS tokens: $e");
                                                 }
                                               }
 
@@ -730,13 +736,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                               await userProvider.updateFcmToken(fcmToken);
                                             }
 
-                                            if (_isFirebaseInitialized && fcmToken != null) {
+                                            if (_isFirebaseInitialized) {
                                               try {
                                                 await FirebaseMessagingService.saveUserDataToFirebase(
                                                   email: emailController.text,
                                                   departmentId: loginResult['department'],
                                                   name: loginResult['name'],
-                                                  fcmToken: fcmToken!,
+                                                  fcmToken: fcmToken,
+                                                  apnsToken: apnsToken,
                                                 );
                                               } catch (e) {
                                                 print("Failed to save user data to Firebase: $e");
