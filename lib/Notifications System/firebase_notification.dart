@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -184,14 +186,25 @@ class FirebaseMessagingService {
     // First, request notification permission (required on iOS)
     final settings = await requestNotificationPermissions();
 
-    // Wait a moment for APNs to register after permission
     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional) {
-      await Future.delayed(const Duration(seconds: 1));
+      // iOS needs explicit remote notification registration after permission
+      if (Platform.isIOS) {
+        try {
+          await const MethodChannel('com.FaisalZahrani.ABTF/notifications')
+              .invokeMethod('registerForRemoteNotifications');
+          print('📲 Called iOS registerForRemoteNotifications');
+        } catch (e) {
+          print('❌ Failed to register for remote notifications: $e');
+        }
+      }
+
+      // Give iOS time to generate APNs token after registration
+      await Future.delayed(const Duration(seconds: 2));
     }
 
     final fcm = await getFCMToken();
-    final apns = await waitForAPNSToken(timeout: const Duration(seconds: 10));
+    final apns = await waitForAPNSToken(timeout: const Duration(seconds: 15));
 
     return {
       'fcm': fcm,
