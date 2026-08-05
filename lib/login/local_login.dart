@@ -2,6 +2,8 @@ import 'package:application_v1/home/Main_Screen.dart';
 import 'package:application_v1/login/selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 
 
 
@@ -18,29 +20,101 @@ class _LocalLoginPageState extends State<LocalLoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isLoading = false;
+Future<void> _login() async {
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
 
-  Future<void> _login() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+  setState(() => _isLoading = true);
 
-    setState(() => _isLoading = true);
+  try {
+    print("========== LOGIN START ==========");
 
+    // Firebase Authentication
+    await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    print("Firebase Authentication Success");
+
+    // Get notification permission and FCM token
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const Main_Screen()),
-        //home_screen()
+      final settings = await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
       );
-    } on FirebaseAuthException catch (_) {
+
+      print("Authorization Status: ${settings.authorizationStatus}");
+
+      await Future.delayed(const Duration(seconds: 2));
+
+      final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+      print("APNS Token: $apnsToken");
+
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      print("FCM Token: $fcmToken");
+
+      if (fcmToken != null) {
+        await Clipboard.setData(ClipboardData(text: fcmToken));
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("FCM Token copied:\n$fcmToken"),
+              duration: const Duration(seconds: 10),
+            ),
+          );
+        }
+      } else {
+        print("FCM Token is NULL");
+      }
+    } catch (e, s) {
+      print("========== FCM ERROR ==========");
+      print(e);
+      print(s);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("FCM Error: $e"),
+            duration: const Duration(seconds: 8),
+          ),
+        );
+      }
+    }
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const Main_Screen(),
+      ),
+    );
+  } on FirebaseAuthException catch (e) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email or password is incorrect')),
+        SnackBar(
+          content: Text(e.message ?? 'Email or password is incorrect'),
+        ),
       );
-    } finally {
+    }
+  } catch (e, s) {
+    print(e);
+    print(s);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  } finally {
+    if (mounted) {
       setState(() => _isLoading = false);
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

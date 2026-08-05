@@ -14,6 +14,9 @@ import 'Notifications System/firebase_notification.dart';
 import 'Notifications System/local_notifaction.dart';
 import 'login/selection_screen.dart';
 import 'login/user_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
+
 
 void main() {
   // Catch any errors that occur during Flutter initialization
@@ -59,89 +62,103 @@ class _AppLoaderState extends State<AppLoader> {
     super.initState();
     initializeApp();
   }
-  // Initialize the app
-  Future<void> initializeApp() async {
-    try {
-      print('Starting app initialization...');
-      setState(() {
-        _debugInfo += 'Starting app initialization...\n';
-      });
+Future<void> initializeApp() async {
+  try {
+    print("==================================================");
+    print("ABTF APP INITIALIZATION STARTED");
+    print("==================================================");
 
-      // Initialize Firebase with timeout
-      print('Initializing Firebase...');
-      setState(() {
-        _debugInfo += 'Initializing Firebase...\n';
-      });
-
-      try {
-        await Firebase.initializeApp().timeout(
-          const Duration(seconds: 30),
-          onTimeout: () {
-            throw TimeoutException('Firebase initialization timed out');
-          },
-        );
-
-        print('Firebase initialized successfully');
-        print('Firebase apps: ${Firebase.apps.length}');
-        setState(() {
-          _debugInfo += 'Firebase initialized successfully\n';
-          _debugInfo += 'Firebase apps count: ${Firebase.apps.length}\n';
-        });
-      } catch (e) {
-        print('Firebase initialization failed: $e');
-        setState(() {
-          _debugInfo += 'Firebase initialization failed: $e\n';
-        });
-        // Don't rethrow - continue without Firebase
-      }
-
-    } catch (e, stackTrace) {
-      print('App initialization error: $e');
-      print('Stack trace: $stackTrace');
-      setState(() {
-        _debugInfo += 'App error: $e\n';
-        _debugInfo += 'Stack: $stackTrace\n';
-      });
-    }
-
-    // Show app immediately regardless of Firebase status
-    if (mounted) {
-      setState(() {
-        _initialized = true;
-      });
-    }
-
-    print('App initialization completed, showing UI');
     setState(() {
-      _debugInfo += 'App initialization completed\n';
+      _debugInfo = "Starting application...\n";
     });
 
-    // Initialize background services in background
-    unawaited(_initializeBackgroundServices());
-  }
-  Future<void> _initializeBackgroundServices() async {
-    try {
-      // Initialize local notifications
-      try {
-        await LocalNotificationsService.setupLocalNotifications();
-        print("Local notifications initialized");
-      } catch (e) {
-        print("Local notifications failed: $e");
-      }
+    print("Flutter initialized successfully.");
 
-      // Initialize Firebase messaging only if Firebase is initialized
-      try {
-        FirebaseMessagingService.setupFirebaseMessaging();
-        print("Firebase messaging initialized");
-      } catch (e) {
-        print("Firebase messaging failed: $e");
-      }
+    // Show existing Firebase apps
+    print("Firebase Apps BEFORE init: ${Firebase.apps.length}");
 
-      print("Background services initialization completed");
-    } catch (e) {
-      print("Background initialization error: $e");
-    }
+    setState(() {
+      _debugInfo += "Firebase Apps BEFORE: ${Firebase.apps.length}\n";
+    });
+
+    print("Initializing Firebase...");
+
+    final FirebaseApp app = Platform.isIOS ? await Firebase.initializeApp(options: const FirebaseOptions(
+      apiKey: 'AIzaSyA9VSOATv5eWQ54Yu5zGd8-eCkgaJVcC_U',
+      appId: '1:241071190796:ios:79a8fb36027cf6f67e4f29',
+      messagingSenderId:'241071190796',
+      projectId: 'towerapp-fec08',
+      iosBundleId: 'com.FaisalZahrani.ABTFApp',
+    )):await Firebase.initializeApp().timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {
+        throw TimeoutException("Firebase initialization timed out");
+      },
+    );
+
+    print("==================================================");
+    print("FIREBASE INITIALIZED SUCCESSFULLY");
+    print("==================================================");
+    print("App Name      : ${app.name}");
+    print("Project ID    : ${app.options.projectId}");
+    print("App ID        : ${app.options.appId}");
+    print("Storage Bucket: ${app.options.storageBucket}");
+    print("Messaging ID  : ${app.options.messagingSenderId}");
+    print("Database URL  : ${app.options.databaseURL}");
+    print("Apps AFTER    : ${Firebase.apps.length}");
+    print("==================================================");
+
+    setState(() {
+      _debugInfo += "Firebase initialized successfully\n";
+      _debugInfo += "Project: ${app.options.projectId}\n";
+      _debugInfo += "App ID : ${app.options.appId}\n";
+      _debugInfo += "Apps   : ${Firebase.apps.length}\n";
+    });
+
+    _initialized = true;
+  } catch (e, stackTrace) {
+    print("==================================================");
+    print("FIREBASE INITIALIZATION FAILED");
+    print("==================================================");
+    print(e);
+    print(stackTrace);
+    print("==================================================");
+
+    setState(() {
+      _error = true;
+      _errorMessage = e.toString();
+      _debugInfo += "Firebase ERROR:\n";
+      _debugInfo += "$e\n";
+      _debugInfo += "$stackTrace\n";
+    });
+
+    return;
   }
+
+  if (mounted) {
+    setState(() {
+      _initialized = true;
+    });
+  }
+
+  print("Initializing background services...");
+
+  try {
+    await LocalNotificationsService.setupLocalNotifications();
+    print("Local Notifications initialized.");
+  } catch (e) {
+    print("Local Notifications ERROR: $e");
+  }
+
+  try {
+    FirebaseMessagingService.setupFirebaseMessaging();
+    print("Firebase Messaging initialized.");
+  } catch (e) {
+    print("Firebase Messaging ERROR: $e");
+  }
+
+  print("Application initialization finished.");
+}
 
 
 
