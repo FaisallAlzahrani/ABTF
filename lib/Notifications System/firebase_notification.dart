@@ -62,7 +62,10 @@ class FirebaseMessagingService {
     try {
       if (!isFirebaseInitialized) {
         print('Firebase not initialized, skipping permission request');
-        return const NotificationSettings(authorizationStatus: AuthorizationStatus.notDetermined);
+        return const NotificationSettings(
+          authorizationStatus: AuthorizationStatus.notDetermined,
+          alert: AppleNotificationSetting.notSupported,
+        );
       }
 
       print('📱 Requesting notification permissions...');
@@ -84,7 +87,10 @@ class FirebaseMessagingService {
       return settings;
     } catch (e) {
       print('❌ Error requesting notification permissions: $e');
-      return const NotificationSettings(authorizationStatus: AuthorizationStatus.notDetermined);
+      return const NotificationSettings(
+        authorizationStatus: AuthorizationStatus.notDetermined,
+        alert: AppleNotificationSetting.notSupported,
+      );
     }
   }
 
