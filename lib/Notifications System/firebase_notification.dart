@@ -68,6 +68,7 @@ class FirebaseMessagingService {
       criticalAlert: AppleNotificationSetting.notSupported,
       lockScreen: AppleNotificationSetting.notSupported,
       notificationCenter: AppleNotificationSetting.notSupported,
+      providesAppNotificationSettings: AppleNotificationSetting.notSupported,
       showPreviews: AppleShowPreviewSetting.notSupported,
       sound: AppleNotificationSetting.notSupported,
       timeSensitive: AppleNotificationSetting.notSupported,
