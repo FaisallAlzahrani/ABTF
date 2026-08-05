@@ -58,14 +58,27 @@ class FirebaseMessagingService {
     }
   }
 
+  static NotificationSettings _defaultNotificationSettings() {
+    return const NotificationSettings(
+      authorizationStatus: AuthorizationStatus.notDetermined,
+      alert: AppleNotificationSetting.notSupported,
+      announcement: AppleNotificationSetting.notSupported,
+      badge: AppleNotificationSetting.notSupported,
+      carPlay: AppleNotificationSetting.notSupported,
+      criticalAlert: AppleNotificationSetting.notSupported,
+      lockScreen: AppleNotificationSetting.notSupported,
+      notificationCenter: AppleNotificationSetting.notSupported,
+      showPreviews: AppleShowPreviewSetting.notSupported,
+      sound: AppleNotificationSetting.notSupported,
+      timeSensitive: AppleNotificationSetting.notSupported,
+    );
+  }
+
   static Future<NotificationSettings> requestNotificationPermissions() async {
     try {
       if (!isFirebaseInitialized) {
         print('Firebase not initialized, skipping permission request');
-        return const NotificationSettings(
-          authorizationStatus: AuthorizationStatus.notDetermined,
-          alert: AppleNotificationSetting.notSupported,
-        );
+        return _defaultNotificationSettings();
       }
 
       print('📱 Requesting notification permissions...');
@@ -87,10 +100,7 @@ class FirebaseMessagingService {
       return settings;
     } catch (e) {
       print('❌ Error requesting notification permissions: $e');
-      return const NotificationSettings(
-        authorizationStatus: AuthorizationStatus.notDetermined,
-        alert: AppleNotificationSetting.notSupported,
-      );
+      return _defaultNotificationSettings();
     }
   }
 
