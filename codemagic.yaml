@@ -18,7 +18,7 @@ workflows:
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
 
-   scripts:
+    scripts:
       - name: Flutter packages get
         script: |
           flutter clean
@@ -27,7 +27,7 @@ workflows:
           echo "===== Firebase packages ====="
           flutter pub deps | grep firebase || true
       - name: Check generated plugins
-       script: |
+        script: |
           echo "===== GeneratedPluginRegistrant ====="
           find ios -name "GeneratedPluginRegistrant*"
 
