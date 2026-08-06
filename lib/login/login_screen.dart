@@ -373,6 +373,9 @@ class _LoginScreenState extends State<LoginScreen> {
           if (fcmToken != null) {
             await userProvider.updateFcmToken(fcmToken);
           }
+            if (apnsToken != null) {
+              await userProvider.updateapnsToken(apnsToken);
+            }
 
           if (_isFirebaseInitialized) {
             try {
@@ -735,6 +738,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                             if (fcmToken != null) {
                                               await userProvider.updateFcmToken(fcmToken);
                                             }
+                                              if (apnsToken != null) {
+                                                await userProvider.updateapnsToken(apnsToken);
+                                              }
+
 
                                             if (_isFirebaseInitialized) {
                                               try {

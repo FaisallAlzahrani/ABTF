@@ -7,6 +7,7 @@ class UserProvider extends ChangeNotifier {
   String _emp_id= "";
   String _department_id = "";
   String? _fcmToken;
+  String? _apnsToken;
 
   String get firstName => _firstName;
   String get email => _email;
@@ -21,6 +22,7 @@ class UserProvider extends ChangeNotifier {
     _emp_id = prefs.getString('userId') ?? "";
     _department_id = prefs.getString('userDepartment') ?? "";
     _fcmToken = prefs.getString('fcmToken');
+    _apnsToken = prefs.getString('apnsToken');
     notifyListeners();
   }
 
@@ -63,12 +65,19 @@ class UserProvider extends ChangeNotifier {
     await prefs.setString('fcmToken', fcmToken);
     notifyListeners();
   }
+  Future<void> updateapnsToken(String apnsToken) async {
+    _apnsToken = apnsToken;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('apnsToken', apnsToken);
+    notifyListeners();
+  }
   Future<void> logout() async {
     _firstName = '';
     _emp_id = '';
     _department_id= '';
     _email = '';
     _fcmToken = null;
+    _apnsToken = null;
     
     // Clear SharedPreferences
     final prefs = await SharedPreferences.getInstance();
