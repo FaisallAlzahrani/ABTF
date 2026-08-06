@@ -18,7 +18,7 @@ workflows:
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
 
-      scripts:
+  scripts:
       - name: Flutter packages get
         script: |
           flutter clean
