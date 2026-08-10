@@ -25,99 +25,17 @@ workflows:
           flutter pub get
 
           echo "===== Firebase packages ====="
-          flutter pub deps | grep firebase || true
-      - name: Check generated plugins
-        script: |
-          echo "===== GeneratedPluginRegistrant ====="
-          find ios -name "GeneratedPluginRegistrant*"
-
-          if [ -f ios/Runner/GeneratedPluginRegistrant.m ]; then
-          cat ios/Runner/GeneratedPluginRegistrant.m
-          fi
-
-          if [ -f ios/Runner/GeneratedPluginRegistrant.swift ]; then
-          cat ios/Runner/GeneratedPluginRegistrant.swift
-          fi
-
-          echo "===== .flutter-plugins-dependencies ====="
-          cat .flutter-plugins-dependencies
-      - name: Debug iOS plugins
-        script: |
-          echo "===== iOS .symlinks ====="
-          find ios/.symlinks -maxdepth 2 -type d || true
-
-          echo "===== Firebase plugin folders ====="
-          ls -la ios/.symlinks/plugins/firebase_core || true
-          ls -la ios/.symlinks/plugins/firebase_auth || true
-          ls -la ios/.symlinks/plugins/cloud_firestore || true
-          ls -la ios/.symlinks/plugins/firebase_messaging || true
-          ls -la ios/.symlinks/plugins/firebase_storage || true
-      - name: Show GeneratedPluginRegistrant
-        script: |
-          find ios -name "GeneratedPluginRegistrant*"
-
-          if [ -f ios/Runner/GeneratedPluginRegistrant.m ]; then
-          cat ios/Runner/GeneratedPluginRegistrant.m
-          fi
-
-          if [ -f ios/Runner/GeneratedPluginRegistrant.swift ]; then
-           cat ios/Runner/GeneratedPluginRegistrant.swift
-          fi
-
+          flutter pub deps | grep firebase || true    
       - name: Configure code signing (App Store Connect)
         script: |
           keychain initialize
           app-store-connect fetch-signing-files "${BUNDLE_ID}" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
-
-      - name: Install CocoaPods
-        script: |
-          cd ios
-          rm -f Podfile.lock
-          pod repo update
-          pod install --verbose
-
-          echo "===== FIREBASE PODS ====="
-          grep -i Firebase Podfile.lock || true
-
-      - name: Archive generated iOS files
-        script: |
-          mkdir -p generated_ios
-
-          cp ios/Podfile generated_ios/ || true
-          cp ios/Podfile.lock generated_ios/ || true
-          cp ios/Runner.xcodeproj/project.pbxproj generated_ios/ || true
-          cp ios/Runner/GoogleService-Info.plist generated_ios/ || true
-
-          cd ios
-          pod env > ../generated_ios/pod_env.txt
-          pod --version > ../generated_ios/pod_version.txt
-
       - name: Build IPA
         script: |
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
-
-      - name: Verify Firebase resources
-        script: |
-          APP=$(find build/ios/archive -name Runner.app | head -1)
-
-          echo "Runner.app:"
-          echo "$APP"
-
-          echo "========== ROOT FILES =========="
-          ls -la "$APP"
-
-          echo "========== SEARCH GOOGLE =========="
-          find "$APP" -iname "*google*"
-
-          echo "========== SEARCH PLIST =========="
-          find "$APP" -iname "*.plist"
-
-          echo "========== SEARCH FIREBASE =========="
-          find "$APP" -iname "*firebase*"
-
     artifacts:
       - build/ios/ipa/*.ipa
       - build/**/ipa/*.ipa
